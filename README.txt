@@ -1,4 +1,4 @@
-Mortgage Mission V6.2
+Mortgage Mission V6.3
 
 Built and verified from the user's working V5.1 package.
 
@@ -23,3 +23,9 @@ V6.2 bug fix
 - Restores all navigation buttons.
 - Restores saving/updating property value and LTV.
 - Mortgage calculations, history, checkpoints, recurring plan and saved data are unchanged.
+
+V6.3 navigation fix
+- Corrects malformed Dashboard HTML introduced during the V6.1 artwork change.
+- Dashboard, History, Overpay, Recurring and Progress are now five proper sibling pages.
+- Restores reliable bottom navigation across all five screens.
+- V6.2 property-value fix and all mortgage data/calculations are retained.
