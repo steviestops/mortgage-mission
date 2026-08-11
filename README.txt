@@ -1,4 +1,4 @@
-Mortgage Mission V6
+Mortgage Mission V6.1
 
 Built and verified from the user's working V5.1 package.
 
@@ -13,3 +13,7 @@ V6 changes
 Important
 - Existing user data remains in the same localStorage key: mortgageMissionV3.
 - No reset is required when upgrading.
+
+V6.1 visual update
+- Replaces the CSS dashboard placeholder scene with the approved coastal camper-van artwork.
+- Mortgage calculations and saved-data behaviour are unchanged from V6.

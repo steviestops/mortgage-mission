@@ -163,6 +163,14 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 .jWheel{position:absolute;bottom:0;width:15px;height:15px;border-radius:50%;background:#17292c;border:3px solid #879394}.jwl{left:14px}.jwr{right:14px}
 .journeyV6 .caption{position:absolute;z-index:7;right:10px;top:11px;text-align:right;color:white;font-weight:900;font-size:11px;line-height:1.05;text-shadow:0 2px 4px #173d43}.journeyV6 .caption span{font-size:13px;color:#ffe7a4}
 
+
+/* V6.1 photographic-style dashboard journey artwork */
+.journeyPhoto{position:relative;height:165px;overflow:hidden;border-radius:18px;background:#6f9fa1}
+.journeyPhoto .journeyArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 55%;display:block}
+.journeyPhoto .journeyShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,42,47,.12),rgba(8,42,47,0) 45%,rgba(8,42,47,.12))}
+.journeyPhoto .caption{position:absolute;z-index:3;right:12px;top:12px;text-align:right;color:#fff;font-weight:900;font-size:11px;line-height:1.05;text-shadow:0 2px 5px rgba(0,0,0,.65)}
+.journeyPhoto .caption span{font-size:13px;color:#ffe7a4}
+
 </style>
 </head>
 <body>
@@ -199,14 +207,9 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 <main class="app" id="app">
   <div id="dashboard" class="page active">
     <div class="header"><div><div class="brand">Mortgage Mission</div><div class="mini">The road to mortgage freedom 🚐</div></div><div style="font-size:28px">🏡</div></div>
-    <div class="journey journeyV6">
-      <div class="jSun"></div><div class="jCloud jc1"></div><div class="jCloud jc2"></div>
-      <div class="jHill jh1"></div><div class="jHill jh2"></div><div class="jSea"></div>
-      <div class="jRoad"></div><div class="jRoadLine"></div>
-      <div class="jVan" id="van">
-        <div class="jRack"></div><div class="jBody"><div class="jWindow jw1"></div><div class="jWindow jw2"></div><div class="jStripe"></div><div class="jSpare">MM</div></div>
-        <div class="jWheel jwl"></div><div class="jWheel jwr"></div>
-      </div>
+    <div class="journey journeyV6 journeyPhoto">
+      <img class="journeyArt" src="journey-art.png" alt="Camper van travelling along a coastal road at sunset">
+      <div class="journeyShade"></div>
       <div class="caption">WE'RE ON THIS<br><span>JOURNEY TOGETHER</span></div>
     </div>
     </div>
