@@ -52,6 +52,9 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 .graphLegend{display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--muted)}.chartWrap{margin-top:8px;background:#fffaf2;border-radius:12px;padding:4px;overflow:hidden}#mortgageChart{width:100%;height:auto;display:block}
 .missionAdv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.missionAdv>div{background:#f5eee3;border-radius:12px;padding:10px}.missionAdv span,.missionAdv small{display:block;font-size:9px;color:var(--muted)}.missionAdv b{display:block;font-size:18px;color:var(--teal);margin:3px 0}
 #celebrate.mega{background:radial-gradient(circle at 50% 45%,#294966,#07111f 65%)}.rocket{position:absolute;font-size:30px;animation:rocket 1.1s ease-in forwards}@keyframes rocket{from{transform:translateY(0)}to{transform:translateY(-85vh)}}
+
+.resetbtn{margin-top:9px;background:#fff3f0;color:#a4422f;border:1px solid #efc8be}
+.chartHint{margin-top:8px;padding:9px 10px;border-radius:11px;background:#eef7f5;color:#376b65;font-size:11px;line-height:1.35}
 </style>
 </head>
 <body>
@@ -124,6 +127,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="graphLegend"><span>● Original path</span><span class="green">● Mortgage Mission</span></div>
       <div class="chartWrap"><canvas id="mortgageChart" width="640" height="360"></canvas></div>
       <div class="missionAdv"><div><span>MISSION ADVANTAGE</span><b id="advTime">0 days</b><small>estimated time ahead</small></div><div><span>INTEREST AVOIDED</span><b id="advInterest">£0</b><small>illustrative estimate</small></div></div>
+      <div class="chartHint" id="chartHint">With no overpayments logged, the two lines sit directly on top of each other. Log an overpayment and the Mortgage Mission line will pull away.</div>
       <div class="note">Projection uses 5.09% throughout for illustration. The real rate will change after your fixed deal ends.</div>
     </div>
     <div class="card" style="margin-top:10px">
@@ -140,7 +144,8 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="label">Reconcile with Santander</div>
       <input id="newBalance" type="number" step=".01" min="0" placeholder="Latest Santander balance (£)">
       <button class="btn secondary" onclick="reconcile()">Update Actual Balance</button>
-      <div class="note">This updates the current balance without deleting your overpayment history.</div>
+      <button class="btn resetbtn" onclick="resetTestData()">Reset Test Data</button>
+      <div class="note">Updating the balance keeps your overpayment history. Reset Test Data removes all logged test overpayments and returns the app to the Santander starting balance of £105,600.61 while keeping the £134,000 property value.</div>
     </div>
   </div>
 
@@ -234,19 +239,67 @@ function renderLtvMilestones(v){
 
 function drawChart(){
  const c=document.querySelector('#mortgageChart'); if(!c)return;
- const ctx=c.getContext('2d'),W=c.width,H=c.height,L=62,R=18,T=24,B=40,r=RATE/12,n=MONTHS,b0=state.initialBalance;
- const pay=b0*r/(1-Math.pow(1+r,-n)), extra=lifetime(), rows=[]; let a=b0,m=b0;
- for(let i=0;i<=n;i++){if(i%12===0||i===n)rows.push({i,a,m});if(i<n){a=Math.max(0,a-(pay-a*r));m=Math.max(0,m-(pay-m*r));if(i<12)m=Math.max(0,m-extra/12)}}
- const x=i=>L+(W-L-R)*i/n,y=v=>T+(H-T-B)*(1-v/b0);ctx.clearRect(0,0,W,H);ctx.font='20px -apple-system';ctx.fillStyle='#718086';
- [0,.25,.5,.75,1].forEach(f=>{let yy=y(b0*f);ctx.strokeStyle='#e8dfd4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.textAlign='right';ctx.fillText('£'+Math.round(b0*f/1000)+'k',L-8,yy+6)});
- [0,5,10,15,20].forEach(yr=>{ctx.textAlign='center';ctx.fillText(yr?yr+'y':'Now',x(yr*12),H-10)});
- function line(k,col,w){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();rows.forEach((d,j)=>j?ctx.lineTo(x(d.i),y(d[k])):ctx.moveTo(x(d.i),y(d[k])));ctx.stroke()}
- line('a','#9aa7aa',5);line('m','#0b7c82',7);
- [{v:100000,t:'£100k'},{v:state.propertyValue?state.propertyValue*.75:0,t:'75% LTV'}].filter(g=>g.v&&g.v<b0).forEach(g=>{let yy=y(g.v);ctx.setLineDash([7,7]);ctx.strokeStyle='#df7149';ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#b55d3f';ctx.textAlign='left';ctx.fillText(g.t,L+6,yy-6)});
- let fx=x(35);ctx.setLineDash([5,6]);ctx.strokeStyle='#d2a12c';ctx.beginPath();ctx.moveTo(fx,T);ctx.lineTo(fx,H-B);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#9a7417';ctx.textAlign='left';ctx.fillText('Jul 2029',fx+5,T+18);
- const im=impact(lifetime()),days=Math.round(im.months*30.44);document.querySelector('#advTime').textContent=days+' days';document.querySelector('#advInterest').textContent=money(im.interest);
-}
+ const ctx=c.getContext('2d'),W=c.width,H=c.height,L=62,R=18,T=24,B=40,r=RATE/12,n=MONTHS;
+ const startBal=state.initialBalance;
+ const scheduled=startBal*r/(1-Math.pow(1+r,-n));
+ const over=lifetime();
+ const rows=[];
+ let original=startBal;
+ let mission=Math.max(0,startBal-over);
+ for(let i=0;i<=n;i++){
+   if(i%12===0||i===n) rows.push({i,original,mission});
+   if(i<n){
+     original=Math.max(0,original-(scheduled-original*r));
+     mission=Math.max(0,mission-(scheduled-mission*r));
+   }
+ }
+ const max=startBal;
+ const x=i=>L+(W-L-R)*i/n;
+ const y=v=>T+(H-T-B)*(1-v/max);
+ ctx.clearRect(0,0,W,H);
+ ctx.font='20px -apple-system';
+ ctx.fillStyle='#718086';
+ [0,.25,.5,.75,1].forEach(f=>{
+   const yy=y(max*f);
+   ctx.strokeStyle='#e8dfd4';ctx.lineWidth=1;
+   ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();
+   ctx.textAlign='right';ctx.fillText('£'+Math.round(max*f/1000)+'k',L-8,yy+6);
+ });
+ [0,5,10,15,20].forEach(yr=>{
+   ctx.textAlign='center';ctx.fillStyle='#718086';
+   ctx.fillText(yr?yr+'y':'Now',x(yr*12),H-10);
+ });
+ function line(key,col,w,dash=[]){
+   ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.setLineDash(dash);
+   ctx.beginPath();
+   rows.forEach((d,j)=>j?ctx.lineTo(x(d.i),y(d[key])):ctx.moveTo(x(d.i),y(d[key])));
+   ctx.stroke();ctx.restore();
+ }
+ line('original','#9aa7aa',5,[9,7]);
+ line('mission','#0b7c82',7,[]);
+ [{v:100000,t:'£100k'},{v:state.propertyValue?state.propertyValue*.75:0,t:'75% LTV'}]
+   .filter(g=>g.v&&g.v<max)
+   .forEach(g=>{
+     const yy=y(g.v);
+     ctx.save();ctx.setLineDash([7,7]);ctx.strokeStyle='#df7149';ctx.lineWidth=2;
+     ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.restore();
+     ctx.fillStyle='#b55d3f';ctx.textAlign='left';ctx.fillText(g.t,L+6,yy-6);
+   });
+ const fx=x(35);
+ ctx.save();ctx.setLineDash([5,6]);ctx.strokeStyle='#d2a12c';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(fx,T);ctx.lineTo(fx,H-B);ctx.stroke();ctx.restore();
+ ctx.fillStyle='#9a7417';ctx.textAlign='left';ctx.fillText('Jul 2029',fx+5,T+18);
 
+ const im=impact(over),days=Math.round(im.months*30.44);
+ document.querySelector('#advTime').textContent=days+' days';
+ document.querySelector('#advInterest').textContent=money(im.interest);
+ const hint=document.querySelector('#chartHint');
+ if(hint){
+   hint.textContent=over>0
+    ? money(over,2)+' of logged overpayments is now reflected in the Mortgage Mission line.'
+    : 'With no overpayments logged, the two lines sit directly on top of each other. Log an overpayment and the Mortgage Mission line will pull away.';
+ }
+}
 function enterApp(){document.querySelector('#splash').style.display='none';document.querySelector('#app').classList.add('show');document.querySelector('#nav').classList.add('show')}
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -288,6 +341,24 @@ function reconcile(){
   const el=document.querySelector('#newBalance'),v=Number(el.value);
   if(v>0){state.actualBalance=v;state.reconciliations.push({balance:v,date:new Date().toISOString()});el.value='';save();render();alert('Santander balance updated. Your overpayment history has been kept.')}
 }
+
+function resetTestData(){
+  if(!confirm('Remove all test overpayments and return Mortgage Mission to the real Santander starting figures?')) return;
+  state={
+    initialBalance:105600.61,
+    actualBalance:105600.61,
+    propertyValue:134000,
+    payments:[],
+    reconciliations:[]
+  };
+  localStorage.setItem('mortgageMissionV3',JSON.stringify(state));
+  document.querySelector('#amount').value='';
+  document.querySelector('#newBalance').value='';
+  render();
+  showPage('dashboard');
+  alert('Test data cleared. Mortgage Mission is back to the real starting figures.');
+}
+
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 render();
 </script>
