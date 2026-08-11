@@ -64,8 +64,8 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 }
 .splashPhoto .sun,.splashPhoto .hill1,.splashPhoto .hill2,.splashPhoto .road,.splashPhoto .splashcopy,.splashPhoto .camper{display:none!important}
 .splashShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,44,52,.06) 0%,rgba(9,44,52,.02) 52%,rgba(7,25,31,.72) 100%)}
-.splashTitle{position:relative;z-index:4;text-align:center;margin-top:calc(34px + env(safe-area-inset-top));color:#f8f4e9;text-shadow:0 2px 8px #123b43}
-.splashMain{font-size:46px;line-height:.93;font-weight:900;font-style:italic;letter-spacing:-2px}
+.splashTitle{position:relative;z-index:4;text-align:center;margin-top:calc(38px + env(safe-area-inset-top));color:#fff8e9;text-shadow:0 3px 10px #0d3239}
+.splashMain{font-size:45px;line-height:.93;font-weight:900;font-style:italic;letter-spacing:-2px}
 .splashTag{margin-top:10px;font-size:15px;font-weight:750;color:#fff8e9;text-shadow:0 2px 7px #143943}
 .recurringHero{display:flex;align-items:center;gap:12px}
 .recurringIcon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e1f2ed;font-size:26px}
@@ -73,6 +73,8 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 .switchrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
 .switchrow input[type=checkbox]{width:22px;height:22px}
 .projBadge{display:inline-block;margin-top:6px;padding:5px 8px;border-radius:9px;background:#e8f4f2;color:#0b6d72;font-size:10px;font-weight:800}
+
+.checkpoint{padding:11px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.checkpoint:last-child{border-bottom:0}.safeNote{padding:10px;border-radius:12px;background:#edf6ef;color:#38664b;font-size:11px;margin-top:9px}
 </style>
 </head>
 <body>
@@ -110,6 +112,17 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="card"><div class="label">Next road stop</div><div class="num orange" id="nextStop">75% LTV</div><div class="mini" id="nextStopSub">£5,101 to go</div></div>
     </div>
     <div class="card wide" style="margin-top:10px">
+  <div class="recurringHero">
+    <div class="recurringIcon">🛡️</div>
+    <div style="flex:1">
+      <div class="label">Santander balance checkpoints</div>
+      <div class="num" id="checkpointDashboard">1 checkpoint</div>
+      <div class="mini" id="checkpointLatest">Latest: £105,600.61</div>
+    </div>
+    <button class="q" onclick="showPage('progress')">Manage</button>
+  </div>
+</div>
+<div class="card wide" style="margin-top:10px">
   <div class="recurringHero">
     <div class="recurringIcon">🔄</div>
     <div style="flex:1">
@@ -172,11 +185,20 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div id="ltvMilestones"></div>
     </div>
     <div class="card" style="margin-top:10px">
-      <div class="label">Reconcile with Santander</div>
+      <div class="label">Santander balance checkpoint</div>
       <input id="newBalance" type="number" step=".01" min="0" placeholder="Latest Santander balance (£)">
-      <button class="btn secondary" onclick="reconcile()">Update Actual Balance</button>
-      <button class="btn resetbtn" onclick="resetTestData()">Reset Test Data</button>
-      <div class="note">Updating the balance keeps your overpayment history. Reset Test Data removes logged test overpayments, restores the Santander starting balance of £105,600.61 and £134,000 property value, and pauses the recurring projection so the graph visibly returns to the original path.</div>
+      <input id="checkpointDate" type="date">
+      <button class="btn primary" onclick="addCheckpoint()">Save Balance Check</button>
+      <div class="note">This records a dated real-world checkpoint. Your overpayments, recurring-payment history and earlier checkpoints are never deleted.</div>
+      <div id="checkpointList" style="margin-top:10px"></div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="label">What-if sandbox 🧪</div>
+      <div class="mini">Experiment without touching your real Mortgage Mission data.</div>
+      <input id="whatIfMonthly" type="number" step="10" min="0" placeholder="What if monthly overpayment (£)">
+      <input id="whatIfLump" type="number" step="50" min="0" placeholder="What if one-off payment (£)">
+      <button class="btn secondary" onclick="runWhatIf()">Run What-if</button>
+      <div id="whatIfResult" class="chartHint" style="display:none"></div>
     </div>
   </div>
 
@@ -193,6 +215,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <input id="recurringAmount" type="number" min="0" step="1" value="100">
       <div class="switchrow"><div><b>Include in projection</b><div class="mini">Turn this off if the direct debit stops.</div></div><input id="recurringEnabled" type="checkbox" checked></div>
       <button class="btn primary" onclick="saveRecurring()">Save Recurring Plan</button>
+      <div class="section"><h2>Recurring history</h2><div class="history" id="recurringHistoryList"></div></div>
       <div class="note">Mortgage Mission does not automatically mark these payments as paid. When Santander actually takes the £100, log it as an overpayment so your confirmed history remains accurate. Reset Test Data remembers this £100 amount but pauses it until you switch the projection back on.</div>
     </div>
     <div class="card" style="margin-top:10px">
@@ -207,6 +230,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
     <div class="header"><div class="brand">History</div><div>📖</div></div>
     <div class="card"><div class="label">Lifetime overpayments</div><div class="big green" id="historyTotal">£0</div><div class="mini" id="historyCount">No overpayments logged yet.</div></div>
     <div class="section"><h2>Overpayments</h2><div class="history" id="historyList"></div></div>
+    <div class="section"><h2>Santander checkpoints</h2><div class="history" id="historyCheckpoints"></div></div>
   </div>
 </main>
 
@@ -231,6 +255,9 @@ let state=JSON.parse(localStorage.getItem('mortgageMissionV3')||'null')||{
 };
 if(state.recurringAmount===undefined) state.recurringAmount=100;
 if(state.recurringEnabled===undefined) state.recurringEnabled=true;
+if(!Array.isArray(state.checkpoints)) state.checkpoints=[{date:'2026-08-11',balance:105600.61,note:'Starting Santander balance'}];
+if(!Array.isArray(state.recurringHistory)) state.recurringHistory=[{date:'2026-08-11',amount:Number(state.recurringAmount||100),enabled:!!state.recurringEnabled}];
+
 const money=(n,d=0)=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
 function save(){localStorage.setItem('mortgageMissionV3',JSON.stringify(state))}
 function lifetime(){return state.payments.reduce((a,p)=>a+p.amount,0)}
@@ -257,6 +284,13 @@ function render(){
   const ra=document.querySelector('#recurringAmount'); if(ra) ra.value=state.recurringAmount||0;
   const re=document.querySelector('#recurringEnabled'); if(re) re.checked=!!state.recurringEnabled;
   const rya=document.querySelector('#recurringAnnual'); if(rya) rya.textContent=money(recur*12);
+  const cps=state.checkpoints||[];
+  const cd=document.querySelector('#checkpointDashboard'); if(cd) cd.textContent=cps.length+' checkpoint'+(cps.length===1?'':'s');
+  const cl=document.querySelector('#checkpointLatest'); if(cl&&cps.length){const q=cps[cps.length-1];cl.textContent='Latest: '+money(q.balance,2)+' • '+new Date(q.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+  const cpl=document.querySelector('#checkpointList'); if(cpl)cpl.innerHTML=cps.slice().reverse().slice(0,5).map(q=>`<div class="checkpoint"><div><b>${new Date(q.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</b><div class="mini">${q.note||'Santander balance check'}</div></div><b>${money(q.balance,2)}</b></div>`).join('');
+  const hcp=document.querySelector('#historyCheckpoints'); if(hcp)hcp.innerHTML=cps.length?cps.slice().reverse().map(q=>`<div class="hist"><div><b>Santander balance check 🛡️</b><div class="date">${new Date(q.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div><div class="amount">${money(q.balance,2)}</div></div>`).join(''):'<div class="hist"><div class="mini">No checkpoints yet.</div></div>';
+  const rhl=document.querySelector('#recurringHistoryList'); if(rhl){const rh=state.recurringHistory||[];rhl.innerHTML=rh.length?rh.slice().reverse().map(q=>`<div class="hist"><div><b>${q.enabled?'Recurring plan':'Recurring paused'}</b><div class="date">${new Date(q.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div><div class="amount">${q.enabled?money(q.amount)+'/mo':'Paused'}</div></div>`).join(''):'<div class="hist"><div class="mini">No recurring history yet.</div></div>';}
+
 
   document.querySelector('#balance').textContent=money(bal,2);
   document.querySelector('#lifeOverpaid').textContent=money(t,2);
@@ -290,6 +324,7 @@ function render(){
     document.querySelector('#equity').textContent='—';document.querySelector('#nextStop').textContent='Set value';document.querySelector('#nextStopSub').textContent='to unlock LTV stops';
   }
   renderLtvMilestones(v);
+  const cpd=document.querySelector('#checkpointDate');if(cpd&&!cpd.value)cpd.value=new Date().toISOString().slice(0,10);
   drawChart(); preview(); save();
 }
 function renderLtvMilestones(v){
@@ -328,6 +363,8 @@ function drawChart(){
  function line(key,col,w,dash=[]){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.setLineDash(dash);ctx.beginPath();rows.forEach((d,j)=>j?ctx.lineTo(x(d.i),y(d[key])):ctx.moveTo(x(d.i),y(d[key])));ctx.stroke();ctx.restore()}
  line('original','#9aa7aa',5,[9,7]);line('mission','#0b7c82',7,[]);
  [{v:100000,t:'£100k'},{v:state.propertyValue?state.propertyValue*.75:0,t:'75% LTV'}].filter(g=>g.v&&g.v<max).forEach(g=>{const yy=y(g.v);ctx.save();ctx.setLineDash([7,7]);ctx.strokeStyle='#df7149';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.restore();ctx.fillStyle='#b55d3f';ctx.textAlign='left';ctx.fillText(g.t,L+6,yy-6)});
+ const cps=state.checkpoints||[];
+ cps.forEach((q,idx)=>{const monthsAgo=Math.max(0,(new Date(q.date+'T12:00:00')-new Date('2026-08-11T12:00:00'))/(1000*60*60*24*30.44)); if(monthsAgo<=n){ctx.fillStyle='#2e8b57';ctx.beginPath();ctx.arc(x(monthsAgo),y(q.balance),7,0,Math.PI*2);ctx.fill();}});
  const fx=x(35);ctx.save();ctx.setLineDash([5,6]);ctx.strokeStyle='#d2a12c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx,T);ctx.lineTo(fx,H-B);ctx.stroke();ctx.restore();ctx.fillStyle='#9a7417';ctx.textAlign='left';ctx.fillText('Jul 2029',fx+5,T+18);
  const im=impact(confirmed),days=Math.round(im.months*30.44);document.querySelector('#advTime').textContent=days+' days';document.querySelector('#advInterest').textContent=money(im.interest);
  const hint=document.querySelector('#chartHint');
@@ -375,10 +412,7 @@ function celebrate(a,im){
   if(a>=250){for(let j=0;j<5;j++){let q=document.createElement('div');q.className='rocket';q.textContent='🚀';q.style.left=(10+Math.random()*80)+'vw';q.style.bottom='-40px';q.style.animationDelay=(j*.12)+'s';c.appendChild(q);setTimeout(()=>q.remove(),1700)}}setTimeout(()=>{c.classList.remove('show','mega');showPage('dashboard')},a>=250?2700:2100)
 }
 function saveProperty(){let v=Number(document.querySelector('#propertyValue').value);if(v>0){state.propertyValue=v;save();render();showPage('dashboard')}}
-function reconcile(){
-  const el=document.querySelector('#newBalance'),v=Number(el.value);
-  if(v>0){state.actualBalance=v;state.reconciliations.push({balance:v,date:new Date().toISOString()});el.value='';save();render();alert('Santander balance updated. Your overpayment history has been kept.')}
-}
+
 
 
 function recurringProjectionMonths(){
@@ -397,29 +431,45 @@ function updateRecurringFinish(){
   el.textContent=d.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
 }
 function saveRecurring(){
-  state.recurringAmount=Math.max(0,Number(document.querySelector('#recurringAmount').value)||0);
-  state.recurringEnabled=document.querySelector('#recurringEnabled').checked;
+  const newAmount=Math.max(0,Number(document.querySelector('#recurringAmount').value)||0);
+  const newEnabled=document.querySelector('#recurringEnabled').checked;
+  state.recurringAmount=newAmount;
+  state.recurringEnabled=newEnabled;
+  if(!Array.isArray(state.recurringHistory)) state.recurringHistory=[];
+  state.recurringHistory.push({date:new Date().toISOString().slice(0,10),amount:newAmount,enabled:newEnabled});
   save();render();updateRecurringFinish();showPage('dashboard');
 }
 
-function resetTestData(){
-  if(!confirm('Remove all test overpayments and return the chart to the original mortgage path?')) return;
-  state={
-    initialBalance:105600.61,
-    actualBalance:105600.61,
-    propertyValue:134000,
-    payments:[],
-    reconciliations:[],
-    recurringAmount:100,
-    recurringEnabled:false
-  };
-  localStorage.setItem('mortgageMissionV3',JSON.stringify(state));
-  document.querySelector('#amount').value='';
+
+
+
+function addCheckpoint(){
+  const b=Number(document.querySelector('#newBalance').value);
+  const d=document.querySelector('#checkpointDate').value||new Date().toISOString().slice(0,10);
+  if(!(b>0)) return;
+  if(!Array.isArray(state.checkpoints)) state.checkpoints=[];
+  state.checkpoints.push({date:d,balance:b,note:'Santander balance check'});
+  state.checkpoints.sort((a,b)=>a.date.localeCompare(b.date));
+  state.actualBalance=b;
+  state.reconciliations.push({balance:b,date:new Date(d+'T12:00:00').toISOString()});
   document.querySelector('#newBalance').value='';
-  render();
-  drawChart();
-  showPage('progress');
-  alert('Test data cleared. The graph is back to the original path. Your £100/month recurring amount is remembered but paused — switch it back on in Recurring when you are ready.');
+  save();render();drawChart();
+  alert('Santander checkpoint saved. Your existing history has been kept.');
+}
+function runWhatIf(){
+  const monthly=Math.max(0,Number(document.querySelector('#whatIfMonthly').value)||0);
+  const lump=Math.max(0,Number(document.querySelector('#whatIfLump').value)||0);
+  const b=Math.max(0,trackerBalance()-lump),r=RATE/12;
+  const scheduled=scheduledPayment(trackerBalance());
+  const totalPay=scheduled+monthly;
+  let months=MONTHS;
+  if(totalPay>b*r) months=-Math.log(1-b*r/totalPay)/Math.log(1+r);
+  const d=new Date();d.setMonth(d.getMonth()+Math.round(months));
+  const originalMonths=remainingMonths(trackerBalance(),scheduled);
+  const timeSaved=Math.max(0,originalMonths-months);
+  const result=document.querySelector('#whatIfResult');
+  result.style.display='block';
+  result.innerHTML='<b>Sandbox result</b><br>With '+money(monthly)+'/month'+(lump?(' plus '+money(lump)+' now'):'')+', projected mortgage-free: <b>'+d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})+'</b> • about '+Math.round(timeSaved)+' months earlier.<br><span class="mini">Nothing here has been saved to your real mortgage data.</span>';
 }
 
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}

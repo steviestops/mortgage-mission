@@ -1,4 +1,4 @@
-const CACHE='mortgage-mission-v4-3';
+const CACHE='mortgage-mission-v5';
 const ASSETS=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./splash-art.jpg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
