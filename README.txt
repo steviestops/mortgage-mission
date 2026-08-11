@@ -1,12 +1,11 @@
-Mortgage Mission V5
+Mortgage Mission V5.1
 
-Keeper-version changes:
-- Real data is protected: no normal reset button.
-- Dated Santander balance checkpoints are saved permanently.
-- Checkpoints appear in history and as dots on the progress graph.
-- Updating Santander balance sets a new datum without deleting prior history.
-- Recurring payment changes are dated and retained in recurring history.
-- £100/month can be changed or paused at any time.
-- What-if sandbox lets you test monthly and lump-sum scenarios without changing real data.
-- Clean camper/coastal splash asset contains no phone frame, text or fake controls.
-- Existing V4 data is migrated in-place using the same localStorage key.
+Fixes:
+- Splash is now 100% app-rendered CSS artwork. There is NO background image containing text,
+  phone chrome, status bars or buttons, so duplication is impossible.
+- £100/month recurring overpayment now drives the summary calculations, not just the green graph.
+- Mission Advantage now shows term reduction from the active recurring plan.
+- Interest Avoided now shows the estimated saving from the active recurring plan.
+- Dashboard includes Current-plan time saved and Current-plan interest saved.
+- Recurring projected mortgage-free date uses the same full-plan calculation.
+- Santander checkpoints, protected history, recurring history and What-if sandbox retained.

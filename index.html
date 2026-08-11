@@ -75,11 +75,103 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 .projBadge{display:inline-block;margin-top:6px;padding:5px 8px;border-radius:9px;background:#e8f4f2;color:#0b6d72;font-size:10px;font-weight:800}
 
 .checkpoint{padding:11px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.checkpoint:last-child{border-bottom:0}.safeNote{padding:10px;border-radius:12px;background:#edf6ef;color:#38664b;font-size:11px;margin-top:9px}
+
+/* V5.1 clean splash: every visible element is app-rendered; no baked UI image */
+.splashClean{
+  position:fixed;inset:0;z-index:100;overflow:hidden;
+  background:linear-gradient(180deg,#6aa9c4 0%,#f6c47d 48%,#315f57 100%);
+}
+.splashClean .splashTitle{
+  position:absolute;z-index:8;top:calc(42px + env(safe-area-inset-top));left:0;right:0;
+  text-align:center;color:#0b5f5b;text-shadow:0 2px 3px #fff8;
+}
+.splashClean .splashMain{
+  font-size:48px;line-height:.9;font-weight:900;font-style:italic;letter-spacing:-2px;
+}
+.splashClean .splashTag{
+  margin-top:12px;font-size:15px;font-weight:800;color:#173f43;text-shadow:0 1px 2px #fff9;
+}
+.skyGlow{
+  position:absolute;inset:0;background:
+  radial-gradient(circle at 22% 32%,rgba(255,246,190,.95) 0 5%,transparent 5.5%),
+  radial-gradient(circle at 25% 30%,rgba(255,234,160,.38) 0 18%,transparent 40%);
+}
+.sunClean{
+  position:absolute;left:16%;top:31%;width:86px;height:86px;border-radius:50%;
+  background:#fff0ae;box-shadow:0 0 45px #fff0a8aa;
+}
+.coast{position:absolute;bottom:28%;height:38%;background:#567b63;filter:drop-shadow(0 8px 8px #173b3455)}
+.coastBack{right:-18%;width:80%;clip-path:polygon(20% 20%,45% 2%,65% 25%,82% 10%,100% 28%,100% 100%,0 100%)}
+.coastFront{left:-18%;width:72%;background:#3f6758;clip-path:polygon(0 30%,20% 12%,40% 32%,60% 16%,82% 38%,100% 55%,100% 100%,0 100%)}
+.roadClean{
+  position:absolute;z-index:3;left:-5%;bottom:-8%;width:110%;height:64%;
+  background:#39464a;clip-path:polygon(34% 0,48% 0,78% 100%,5% 100%);
+  transform:rotate(-6deg);
+}
+.roadStripe{
+  position:absolute;z-index:4;left:42%;bottom:-2%;width:6px;height:54%;
+  background:repeating-linear-gradient(to bottom,#f6e8bd 0 24px,transparent 24px 46px);
+  transform:rotate(-7deg);opacity:.85;
+}
+.camperClean{
+  position:absolute;z-index:7;left:50%;bottom:15%;transform:translateX(-50%);
+  width:220px;height:190px;filter:drop-shadow(0 18px 12px #0005);
+}
+.roofRack{
+  position:absolute;left:38px;top:8px;width:145px;height:28px;border:5px solid #263d3f;
+  border-radius:6px;background:#a9733c;
+}
+.vanShell{
+  position:absolute;left:10px;right:10px;top:28px;bottom:24px;
+  background:linear-gradient(#efe5cc 0 46%,#2f7873 46% 100%);
+  border:5px solid #173d43;border-radius:40px 40px 20px 20px;
+}
+.screenLeft,.screenRight{
+  position:absolute;top:18px;width:64px;height:42px;background:#7cb4bd;border:3px solid #173d43;
+}
+.screenLeft{left:22px;border-radius:14px 5px 5px 5px}.screenRight{right:22px;border-radius:5px 14px 5px 5px}
+.vanStripe{position:absolute;left:0;right:0;top:78px;height:12px;background:#d16b4a}
+.spare{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  width:62px;height:62px;border-radius:50%;background:#e9ddbf;border:5px solid #173d43;
+  display:flex;align-items:center;justify-content:center;font-weight:900;color:#1f5d5a;font-size:18px;
+}
+.plate{
+  position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);
+  background:#e4ad2e;color:#28322e;border:3px solid #28322e;border-radius:3px;
+  font-size:10px;font-weight:900;padding:2px 7px;
+}
+.wheelClean{position:absolute;bottom:5px;width:42px;height:42px;border-radius:50%;background:#17292c;border:8px solid #7d8b8c}
+.wc1{left:34px}.wc2{right:34px}
+.splashClean .start{
+  position:absolute;z-index:10;left:6%;right:6%;bottom:7%;
+  width:auto;padding:16px;border:0;border-radius:18px;background:#164c5c;color:white;
+  font-size:17px;font-weight:850;box-shadow:0 10px 26px #0004;
+}
 </style>
 </head>
 <body>
-<div id="splash" class="splashPhoto">
-  <div class="splashShade"></div>
+<div id="splash" class="splashClean">
+  <div class="skyGlow"></div>
+  <div class="sunClean"></div>
+  <div class="coast coastBack"></div>
+  <div class="coast coastFront"></div>
+  <div class="roadClean"></div>
+  <div class="roadStripe"></div>
+
+  <div class="camperClean" aria-hidden="true">
+    <div class="roofRack"></div>
+    <div class="vanShell">
+      <div class="screenLeft"></div>
+      <div class="screenRight"></div>
+      <div class="vanStripe"></div>
+      <div class="spare">MM</div>
+      <div class="plate">FREEDOM</div>
+    </div>
+    <div class="wheelClean wc1"></div>
+    <div class="wheelClean wc2"></div>
+  </div>
+
   <div class="splashTitle">
     <div class="splashMain">Mortgage<br>Mission</div>
     <div class="splashTag">Our journey to mortgage freedom 🚐</div>
@@ -132,6 +224,10 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
     </div>
     <button class="q" onclick="showPage('recurring')">Manage</button>
   </div>
+</div>
+<div class="cards" style="margin-top:10px">
+  <div class="card"><div class="label">Current-plan time saved</div><div class="num green" id="planTimeSaved">—</div></div>
+  <div class="card"><div class="label">Current-plan interest saved</div><div class="num green" id="planInterestSaved">—</div></div>
 </div>
 <button class="btn primary" onclick="showPage('overpay')">Make an Overpayment 🚐</button>
   </div>
@@ -280,6 +376,12 @@ function render(){
   const recur=state.recurringEnabled?Number(state.recurringAmount||0):0;
   const rd=document.querySelector('#recurringDashboard'); if(rd) rd.textContent=money(recur)+'/ month';
   const rs=document.querySelector('#recurringStatus'); if(rs){rs.textContent=state.recurringEnabled?'ACTIVE IN PROJECTION':'PAUSED';}
+  const plan=currentPlanMetrics();
+  const pts=document.querySelector('#planTimeSaved'); if(pts){
+    pts.textContent=plan.monthsSaved>=1?Math.floor(plan.monthsSaved)+' mo '+Math.round((plan.monthsSaved%1)*30.44)+' d':Math.round(plan.monthsSaved*30.44)+' days';
+  }
+  const pis=document.querySelector('#planInterestSaved'); if(pis) pis.textContent=money(plan.interestSaved);
+
   const rb=document.querySelector('#recurringBig'); if(rb) rb.textContent=money(recur);
   const ra=document.querySelector('#recurringAmount'); if(ra) ra.value=state.recurringAmount||0;
   const re=document.querySelector('#recurringEnabled'); if(re) re.checked=!!state.recurringEnabled;
@@ -339,6 +441,33 @@ function renderLtvMilestones(v){
   }).join('');
 }
 
+
+function currentPlanMetrics(){
+  const b=trackerBalance();
+  const r=RATE/12;
+  const baselineMonths=MONTHS;
+  const basePayment=b*r/(1-Math.pow(1+r,-baselineMonths));
+  const monthlyExtra=state.recurringEnabled?Math.max(0,Number(state.recurringAmount||0)):0;
+
+  // Logged payments have already reduced trackerBalance(), so they are embedded
+  // in today's starting balance. Future recurring overpayment then changes the term.
+  const planPayment=basePayment+monthlyExtra;
+  let planMonths=baselineMonths;
+  if(planPayment>b*r && b>0){
+    planMonths=-Math.log(1-b*r/planPayment)/Math.log(1+r);
+  }
+
+  const baseInterest=Math.max(0,basePayment*baselineMonths-b);
+  const planInterest=Math.max(0,planPayment*planMonths-b);
+  const interestSaved=Math.max(0,baseInterest-planInterest);
+  const monthsSaved=Math.max(0,baselineMonths-planMonths);
+
+  const finish=new Date();
+  finish.setMonth(finish.getMonth()+Math.round(planMonths));
+
+  return {b,basePayment,monthlyExtra,planPayment,planMonths,monthsSaved,interestSaved,finish};
+}
+
 function drawChart(){
  const c=document.querySelector('#mortgageChart'); if(!c)return;
  const ctx=c.getContext('2d'),W=c.width,H=c.height,L=62,R=18,T=24,B=40,r=RATE/12,n=MONTHS;
@@ -366,7 +495,10 @@ function drawChart(){
  const cps=state.checkpoints||[];
  cps.forEach((q,idx)=>{const monthsAgo=Math.max(0,(new Date(q.date+'T12:00:00')-new Date('2026-08-11T12:00:00'))/(1000*60*60*24*30.44)); if(monthsAgo<=n){ctx.fillStyle='#2e8b57';ctx.beginPath();ctx.arc(x(monthsAgo),y(q.balance),7,0,Math.PI*2);ctx.fill();}});
  const fx=x(35);ctx.save();ctx.setLineDash([5,6]);ctx.strokeStyle='#d2a12c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx,T);ctx.lineTo(fx,H-B);ctx.stroke();ctx.restore();ctx.fillStyle='#9a7417';ctx.textAlign='left';ctx.fillText('Jul 2029',fx+5,T+18);
- const im=impact(confirmed),days=Math.round(im.months*30.44);document.querySelector('#advTime').textContent=days+' days';document.querySelector('#advInterest').textContent=money(im.interest);
+ const pm=currentPlanMetrics();
+ const totalDays=Math.round(pm.monthsSaved*30.44);
+ document.querySelector('#advTime').textContent=pm.monthsSaved>=1?Math.floor(pm.monthsSaved)+' mo '+Math.round((pm.monthsSaved%1)*30.44)+' d':totalDays+' days';
+ document.querySelector('#advInterest').textContent=money(pm.interestSaved);
  const hint=document.querySelector('#chartHint');
  if(hint){
    if(monthlyExtra>0) hint.textContent='Projection includes your '+money(monthlyExtra)+'/month recurring overpayment plus '+money(confirmed,2)+' of confirmed one-off/recorded overpayments.';
@@ -415,20 +547,11 @@ function saveProperty(){let v=Number(document.querySelector('#propertyValue').va
 
 
 
-function recurringProjectionMonths(){
-  const b=trackerBalance(), r=RATE/12;
-  const scheduled=scheduledPayment(b);
-  const extra=state.recurringEnabled?Number(state.recurringAmount||0):0;
-  const paymentTotal=scheduled+extra;
-  if(paymentTotal<=b*r) return MONTHS;
-  return -Math.log(1-b*r/paymentTotal)/Math.log(1+r);
-}
+function recurringProjectionMonths(){ return currentPlanMetrics().planMonths; }
 function updateRecurringFinish(){
   const el=document.querySelector('#recurringFinish'); if(!el)return;
-  const months=Math.max(0,recurringProjectionMonths());
-  const d=new Date();
-  d.setMonth(d.getMonth()+Math.round(months));
-  el.textContent=d.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+  const pm=currentPlanMetrics();
+  el.textContent=pm.finish.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
 }
 function saveRecurring(){
   const newAmount=Math.max(0,Number(document.querySelector('#recurringAmount').value)||0);
@@ -465,7 +588,7 @@ function runWhatIf(){
   let months=MONTHS;
   if(totalPay>b*r) months=-Math.log(1-b*r/totalPay)/Math.log(1+r);
   const d=new Date();d.setMonth(d.getMonth()+Math.round(months));
-  const originalMonths=remainingMonths(trackerBalance(),scheduled);
+  const originalMonths=MONTHS;
   const timeSaved=Math.max(0,originalMonths-months);
   const result=document.querySelector('#whatIfResult');
   result.style.display='block';
