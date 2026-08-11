@@ -64,9 +64,9 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 }
 .splashPhoto .sun,.splashPhoto .hill1,.splashPhoto .hill2,.splashPhoto .road,.splashPhoto .splashcopy,.splashPhoto .camper{display:none!important}
 .splashShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,44,52,.06) 0%,rgba(9,44,52,.02) 52%,rgba(7,25,31,.72) 100%)}
-.splashTitle{position:relative;z-index:4;text-align:center;margin-top:calc(48px + env(safe-area-inset-top));color:#0b5861;text-shadow:0 1px 1px #fff8}
-.splashMain{font-size:47px;line-height:.93;font-weight:900;font-style:italic;letter-spacing:-2px}
-.splashTag{margin-top:12px;font-size:15px;font-weight:750;color:#173d43}
+.splashTitle{position:relative;z-index:4;text-align:center;margin-top:calc(34px + env(safe-area-inset-top));color:#f8f4e9;text-shadow:0 2px 8px #123b43}
+.splashMain{font-size:46px;line-height:.93;font-weight:900;font-style:italic;letter-spacing:-2px}
+.splashTag{margin-top:10px;font-size:15px;font-weight:750;color:#fff8e9;text-shadow:0 2px 7px #143943}
 .recurringHero{display:flex;align-items:center;gap:12px}
 .recurringIcon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e1f2ed;font-size:26px}
 .recurringStatus{display:inline-block;margin-top:5px;padding:4px 8px;border-radius:999px;background:#e6f4ec;color:#26744b;font-size:10px;font-weight:800}
@@ -176,7 +176,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <input id="newBalance" type="number" step=".01" min="0" placeholder="Latest Santander balance (£)">
       <button class="btn secondary" onclick="reconcile()">Update Actual Balance</button>
       <button class="btn resetbtn" onclick="resetTestData()">Reset Test Data</button>
-      <div class="note">Updating the balance keeps your overpayment history. Reset Test Data removes all logged test overpayments and returns the app to the Santander starting balance of £105,600.61 while keeping the £134,000 property value.</div>
+      <div class="note">Updating the balance keeps your overpayment history. Reset Test Data removes logged test overpayments, restores the Santander starting balance of £105,600.61 and £134,000 property value, and pauses the recurring projection so the graph visibly returns to the original path.</div>
     </div>
   </div>
 
@@ -193,7 +193,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <input id="recurringAmount" type="number" min="0" step="1" value="100">
       <div class="switchrow"><div><b>Include in projection</b><div class="mini">Turn this off if the direct debit stops.</div></div><input id="recurringEnabled" type="checkbox" checked></div>
       <button class="btn primary" onclick="saveRecurring()">Save Recurring Plan</button>
-      <div class="note">Mortgage Mission does not automatically mark these payments as paid. When Santander actually takes the £100, log it as an overpayment so your confirmed history remains accurate.</div>
+      <div class="note">Mortgage Mission does not automatically mark these payments as paid. When Santander actually takes the £100, log it as an overpayment so your confirmed history remains accurate. Reset Test Data remembers this £100 amount but pauses it until you switch the projection back on.</div>
     </div>
     <div class="card" style="margin-top:10px">
       <div class="label">Forecast effect</div>
@@ -403,7 +403,7 @@ function saveRecurring(){
 }
 
 function resetTestData(){
-  if(!confirm('Remove all test overpayments and return Mortgage Mission to the real Santander starting figures?')) return;
+  if(!confirm('Remove all test overpayments and return the chart to the original mortgage path?')) return;
   state={
     initialBalance:105600.61,
     actualBalance:105600.61,
@@ -411,14 +411,15 @@ function resetTestData(){
     payments:[],
     reconciliations:[],
     recurringAmount:100,
-    recurringEnabled:true
+    recurringEnabled:false
   };
   localStorage.setItem('mortgageMissionV3',JSON.stringify(state));
   document.querySelector('#amount').value='';
   document.querySelector('#newBalance').value='';
   render();
-  showPage('dashboard');
-  alert('Test data cleared. Mortgage Mission is back to the real starting figures.');
+  drawChart();
+  showPage('progress');
+  alert('Test data cleared. The graph is back to the original path. Your £100/month recurring amount is remembered but paused — switch it back on in Recurring when you are ready.');
 }
 
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}

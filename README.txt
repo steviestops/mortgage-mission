@@ -1,11 +1,8 @@
-Mortgage Mission V4.2
+Mortgage Mission V4.3
 
-New:
-- Rich illustrated camper-van splash screen.
-- New camper-based app icon.
-- Recurring overpayments page.
-- £100/month direct debit is enabled by default and included in future projections.
-- Recurring payments are NOT automatically added to confirmed history.
-- Graph now combines confirmed overpayments with the active recurring monthly plan.
-- Recurring amount can be changed or paused.
-- V4.1 reset, equity, LTV, £250 one-month milestone and enhanced fireworks retained.
+Fixes:
+- Splash screen now uses a clean scenic camper-van background only: no duplicated title, fake phone frame, status bar or button in the image.
+- Reset Test Data now genuinely resets the chart to the original mortgage path.
+- Your real £100/month recurring amount is remembered after reset, but its projection is paused.
+- Re-enable the recurring projection from the Recurring tab when ready.
+- All V4.2 features retained.
