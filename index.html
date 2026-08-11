@@ -171,6 +171,10 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 .journeyPhoto .caption{position:absolute;z-index:3;right:12px;top:12px;text-align:right;color:#fff;font-weight:900;font-size:11px;line-height:1.05;text-shadow:0 2px 5px rgba(0,0,0,.65)}
 .journeyPhoto .caption span{font-size:13px;color:#ffe7a4}
 
+
+.sectionSplit{margin-top:10px;padding-top:2px}
+.sectionSplit.planBlock{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sectionTitle{font-size:10px;font-weight:900;letter-spacing:.8px;color:var(--muted);margin:0 0 7px 2px}
 </style>
 </head>
 <body>
@@ -252,7 +256,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 <div class="cards" style="margin-top:10px">
   <div class="card"><div class="label">Current-plan time saved</div><div class="num green" id="planTimeSaved">—</div></div>
   <div class="card"><div class="label">Projected interest avoided</div><div class="num green" id="planInterestSaved">—</div></div>
-  <div class="card"><div class="label">Estimated interest avoided so far</div><div class="num green" id="interestSavedSoFar">—</div><div class="mini">From confirmed overpayments only</div></div>
+  <div class="card"><div class="label">Confirmed overpayment impact</div><div class="num green" id="confirmedImpactDash">—</div><div class="mini" id="confirmedImpactDashSub">No confirmed overpayments yet</div></div>
 </div>
 <button class="btn primary" onclick="showPage('overpay')">Make an Overpayment 🚐</button>
   </div>
@@ -291,8 +295,25 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="label">Predicted mortgage journey</div>
       <div class="graphLegend"><span>● Original path</span><span class="green">● Mortgage Mission</span></div>
       <div class="chartWrap"><canvas id="mortgageChart" width="640" height="360"></canvas></div>
-      <div class="missionAdv"><div><span>MISSION ADVANTAGE</span><b id="advTime">0 days</b><small>estimated time ahead</small></div><div><span>PROJECTED INTEREST AVOIDED</span><b id="advInterest">£0</b><small>based on current plan</small></div></div>
-      <div class="missionAdv" style="grid-template-columns:1fr;margin-top:8px"><div><span>ESTIMATED INTEREST AVOIDED SO FAR</span><b id="advInterestSoFar">£0</b><small>confirmed overpayments only</small></div></div>
+      <div class="sectionSplit">
+        <div class="sectionTitle">CONFIRMED IMPACT</div>
+        <div class="missionAdv">
+          <div><span>CONFIRMED OVERPAID</span><b id="confirmedOverpaid">£0</b><small>actually logged</small></div>
+          <div><span>EST. INTEREST AVOIDED</span><b id="confirmedInterest">£0</b><small>banked from confirmed payments</small></div>
+        </div>
+        <div class="missionAdv" style="grid-template-columns:1fr;margin-top:8px">
+          <div><span>EST. TERM REDUCTION</span><b id="confirmedTime">0d</b><small>from confirmed overpayments only</small></div>
+        </div>
+      </div>
+
+      <div class="sectionSplit planBlock">
+        <div class="sectionTitle">CURRENT PLAN</div>
+        <div class="missionAdv">
+          <div><span>PROJECTED TERM REDUCTION</span><b id="advTime">0d</b><small>£100/month + confirmed payments</small></div>
+          <div><span>PROJECTED INTEREST AVOIDED</span><b id="advInterest">£0</b><small>based on current plan</small></div>
+        </div>
+      </div>
+
       <div class="chartHint" id="chartHint">With no overpayments logged, the two lines sit directly on top of each other. Log an overpayment and the Mortgage Mission line will pull away.</div>
       <div class="note">Projection uses 5.09% throughout for illustration. The real rate will change after your fixed deal ends.</div>
     </div>
@@ -407,7 +428,14 @@ function render(){
     pts.textContent=humanDuration(plan.monthsSaved,false);
   }
   const pis=document.querySelector('#planInterestSaved'); if(pis) pis.textContent=money(plan.interestSaved);
-  const isf=document.querySelector('#interestSavedSoFar'); if(isf) isf.textContent=money(estimatedInterestAvoidedSoFar());
+  const cmi=confirmedImpactMetrics();
+  const cid=document.querySelector('#confirmedImpactDash'); if(cid) cid.textContent=money(cmi.interestSaved);
+  const cids=document.querySelector('#confirmedImpactDashSub'); if(cids){
+    cids.textContent=cmi.confirmed>0
+      ? humanDuration(cmi.monthsSaved,true)+' estimated term reduction from '+money(cmi.confirmed,2)+' confirmed'
+      : 'No confirmed overpayments yet';
+  }
+
 
 
   const rb=document.querySelector('#recurringBig'); if(rb) rb.textContent=money(recur);
@@ -487,16 +515,36 @@ function humanDuration(months, includeDays=false){
 }
 
 
-function estimatedInterestAvoidedSoFar(){
-  const now=Date.now();
-  return (state.payments||[]).reduce((sum,p)=>{
-    const paid=Number(p.amount)||0;
-    const when=new Date(p.date||now).getTime();
-    const years=Math.max(0,(now-when)/(365.2425*24*60*60*1000));
-    // Interest that would approximately have accrued on capital already removed,
-    // using the current mortgage rate as an illustrative model.
-    return sum + paid*(Math.pow(1+RATE/12,years*12)-1);
-  },0);
+
+
+function confirmedImpactMetrics(){
+  const confirmed=Math.max(0,lifetime());
+  const current=trackerBalance();
+  if(confirmed<=0 || current<=0){
+    return {confirmed:confirmed,monthsSaved:0,interestSaved:0};
+  }
+
+  // Counterfactual: same remaining term, but today's balance had not benefited
+  // from the confirmed overpayments. This is an illustrative "banked benefit"
+  // estimate rather than a Santander-certified figure.
+  const noOverpayBalance=current+confirmed;
+  const r=RATE/12;
+  const basePayment=noOverpayBalance*r/(1-Math.pow(1+r,-MONTHS));
+
+  const baselineMonths=MONTHS;
+  let withOverpayMonths=baselineMonths;
+  if(basePayment>current*r){
+    withOverpayMonths=-Math.log(1-current*r/basePayment)/Math.log(1+r);
+  }
+
+  const baselineInterest=Math.max(0,basePayment*baselineMonths-noOverpayBalance);
+  const withOverpayInterest=Math.max(0,basePayment*withOverpayMonths-current);
+
+  return {
+    confirmed:confirmed,
+    monthsSaved:Math.max(0,baselineMonths-withOverpayMonths),
+    interestSaved:Math.max(0,baselineInterest-withOverpayInterest)
+  };
 }
 
 function currentPlanMetrics(){
@@ -553,10 +601,14 @@ function drawChart(){
  cps.forEach((q,idx)=>{const monthsAgo=Math.max(0,(new Date(q.date+'T12:00:00')-new Date('2026-08-11T12:00:00'))/(1000*60*60*24*30.44)); if(monthsAgo<=n){ctx.fillStyle='#2e8b57';ctx.beginPath();ctx.arc(x(monthsAgo),y(q.balance),7,0,Math.PI*2);ctx.fill();}});
  const fx=x(35);ctx.save();ctx.setLineDash([5,6]);ctx.strokeStyle='#d2a12c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx,T);ctx.lineTo(fx,H-B);ctx.stroke();ctx.restore();ctx.fillStyle='#9a7417';ctx.textAlign='left';ctx.fillText('Fixed deal • Jul 2029',fx+7,T+34);
  const pm=currentPlanMetrics();
- const totalDays=Math.round(pm.monthsSaved*30.44);
+ const cm=confirmedImpactMetrics();
+
  document.querySelector('#advTime').textContent=humanDuration(pm.monthsSaved,true);
  document.querySelector('#advInterest').textContent=money(pm.interestSaved);
- const aisf=document.querySelector('#advInterestSoFar'); if(aisf) aisf.textContent=money(estimatedInterestAvoidedSoFar());
+
+ const co=document.querySelector('#confirmedOverpaid'); if(co) co.textContent=money(cm.confirmed,2);
+ const ci=document.querySelector('#confirmedInterest'); if(ci) ci.textContent=money(cm.interestSaved);
+ const ct=document.querySelector('#confirmedTime'); if(ct) ct.textContent=humanDuration(cm.monthsSaved,true);
  const hint=document.querySelector('#chartHint');
  if(hint){
    if(monthlyExtra>0) hint.textContent='Projection includes your '+money(monthlyExtra)+'/month recurring overpayment plus '+money(confirmed,2)+' of confirmed one-off/recorded overpayments.';

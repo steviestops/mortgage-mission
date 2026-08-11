@@ -1,4 +1,4 @@
-Mortgage Mission V6.3
+Mortgage Mission V6.4
 
 Built and verified from the user's working V5.1 package.
 
@@ -29,3 +29,9 @@ V6.3 navigation fix
 - Dashboard, History, Overpay, Recurring and Progress are now five proper sibling pages.
 - Restores reliable bottom navigation across all five screens.
 - V6.2 property-value fix and all mortgage data/calculations are retained.
+
+V6.4 confirmed-vs-projected impact
+- Progress now separates CONFIRMED IMPACT from CURRENT PLAN.
+- Confirmed impact shows amount actually overpaid, estimated lifetime interest avoided, and estimated term reduction from confirmed payments only.
+- Current plan retains projected term reduction and projected interest avoided from recurring + confirmed payments.
+- Dashboard confirmed-impact card now shows the banked benefit of real overpayments.
