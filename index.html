@@ -431,7 +431,7 @@ function render(){
   const progress=Math.max(0,Math.min(100,(state.initialBalance-bal)/state.initialBalance*100));
   document.querySelector('#progressPct').textContent=progress.toFixed(1)+'%';
   document.querySelector('#journeyBar').style.width=progress+'%';
-  document.querySelector('#van').style.setProperty('--vanLeft',(12+progress*.68)+'%');
+  const movingVan=document.querySelector('#van'); if(movingVan) movingVan.style.setProperty('--vanLeft',(12+progress*.68)+'%');
   document.querySelector('#historyTotal').textContent=money(t,2);
   document.querySelector('#historyCount').textContent=state.payments.length?state.payments.length+' overpayment'+(state.payments.length===1?'':'s')+' logged.':'No overpayments logged yet.';
   const list=document.querySelector('#historyList');

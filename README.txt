@@ -1,4 +1,4 @@
-Mortgage Mission V6.1
+Mortgage Mission V6.2
 
 Built and verified from the user's working V5.1 package.
 
@@ -17,3 +17,9 @@ Important
 V6.1 visual update
 - Replaces the CSS dashboard placeholder scene with the approved coastal camper-van artwork.
 - Mortgage calculations and saved-data behaviour are unchanged from V6.
+
+V6.2 bug fix
+- Fixes a JavaScript render crash introduced when the dashboard journey camper was replaced by the approved artwork.
+- Restores all navigation buttons.
+- Restores saving/updating property value and LTV.
+- Mortgage calculations, history, checkpoints, recurring plan and saved data are unchanged.
