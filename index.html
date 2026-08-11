@@ -47,6 +47,11 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
 #celebrate.show{display:block}.celecopy{position:absolute;top:42%;left:50%;width:90%;transform:translate(-50%,-50%)}.celecopy h2{font-size:27px;margin:0}.celeamt{font-size:49px;font-weight:950;color:var(--gold);margin:8px 0}.spark{position:absolute;width:7px;height:7px;border-radius:50%;animation:fly 1.4s ease-out forwards}@keyframes fly{to{transform:translate(var(--x),var(--y)) scale(0);opacity:0}}
 .note{font-size:11px;line-height:1.4;color:var(--muted);margin-top:9px}
 .ltvHero{display:flex;align-items:center;gap:14px}.ltvCircle{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--green) var(--p,0%),#eee5d9 0);position:relative}.ltvCircle:after{content:"";position:absolute;inset:9px;background:white;border-radius:50%}.ltvCircle span{position:relative;z-index:2;font-size:20px;font-weight:900}
+
+.special250{background:#fff1cf!important;border:2px solid #e4a82d!important;color:#8b5a00!important;box-shadow:0 4px 14px #d8a32b33}.special250 small{display:block;font-size:9px;margin-top:2px}
+.graphLegend{display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--muted)}.chartWrap{margin-top:8px;background:#fffaf2;border-radius:12px;padding:4px;overflow:hidden}#mortgageChart{width:100%;height:auto;display:block}
+.missionAdv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.missionAdv>div{background:#f5eee3;border-radius:12px;padding:10px}.missionAdv span,.missionAdv small{display:block;font-size:9px;color:var(--muted)}.missionAdv b{display:block;font-size:18px;color:var(--teal);margin:3px 0}
+#celebrate.mega{background:radial-gradient(circle at 50% 45%,#294966,#07111f 65%)}.rocket{position:absolute;font-size:30px;animation:rocket 1.1s ease-in forwards}@keyframes rocket{from{transform:translateY(0)}to{transform:translateY(-85vh)}}
 </style>
 </head>
 <body>
@@ -78,6 +83,8 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
           <div><div class="num" id="propertyValueText">Set property value</div><div class="mini" id="ltvSub">Add your estimated property value to calculate LTV.</div></div>
         </div>
       </div>
+      <div class="card"><div class="label">Estimated equity</div><div class="num green" id="equity">£28,399</div></div>
+      <div class="card"><div class="label">Next road stop</div><div class="num orange" id="nextStop">75% LTV</div><div class="mini" id="nextStopSub">£5,101 to go</div></div>
     </div>
     <button class="btn primary" onclick="showPage('overpay')">Make an Overpayment 🚐</button>
   </div>
@@ -88,7 +95,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="label">Choose an amount</div>
       <div class="quick" style="margin-top:10px">
         <button class="q" onclick="pick(10)">£10</button><button class="q" onclick="pick(25)">£25</button><button class="q" onclick="pick(50)">£50</button>
-        <button class="q" onclick="pick(100)">£100</button><button class="q" onclick="pick(250)">£250</button><button class="q" onclick="pick(500)">£500</button>
+        <button class="q" onclick="pick(100)">£100</button><button class="q special250" onclick="pick(250)">£250 <small>1 MONTH!</small></button><button class="q" onclick="pick(500)">£500</button>
       </div>
       <input id="amount" type="number" step=".01" min="0" placeholder="Other amount (£)" oninput="preview()">
     </div>
@@ -98,6 +105,7 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="milestone"><div class="mtext"><b>Estimated future interest avoided*</b></div><b class="green" id="pInterest">—</b></div>
       <div class="milestone"><div class="mtext"><b>Estimated time saved*</b></div><b class="green" id="pTime">—</b></div>
       <div class="milestone"><div class="mtext"><b>Allowance remaining</b></div><b id="pAllow">—</b></div>
+<div class="milestone" id="monthMilestone" style="display:none"><div class="badge">🏆</div><div class="mtext"><b>£250 Santander milestone</b><small>For your mortgage, this is the smallest overpayment that reduces the term by one month.</small></div><b class="orange">1 MONTH</b></div>
     </div>
     <button class="btn primary" onclick="confirmOverpay()">Log Overpayment & Launch Fireworks</button>
     <div class="note">*Illustrative only. The calculation assumes 5.09% continues for the remaining term and a constant repayment. Your actual mortgage will change when the fixed deal ends.</div>
@@ -110,6 +118,13 @@ input{width:100%;padding:13px;border:1px solid #dbd1c5;border-radius:13px;font-s
       <div class="big" id="progressPct">0%</div>
       <div class="bar"><div id="journeyBar" style="width:0%"></div></div>
       <div class="mini">Measured from the first balance saved in Mortgage Mission towards £0.</div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="label">Predicted mortgage journey</div>
+      <div class="graphLegend"><span>● Original path</span><span class="green">● Mortgage Mission</span></div>
+      <div class="chartWrap"><canvas id="mortgageChart" width="640" height="360"></canvas></div>
+      <div class="missionAdv"><div><span>MISSION ADVANTAGE</span><b id="advTime">0 days</b><small>estimated time ahead</small></div><div><span>INTEREST AVOIDED</span><b id="advInterest">£0</b><small>illustrative estimate</small></div></div>
+      <div class="note">Projection uses 5.09% throughout for illustration. The real rate will change after your fixed deal ends.</div>
     </div>
     <div class="card" style="margin-top:10px">
       <div class="label">Property value & LTV</div>
@@ -191,14 +206,19 @@ function render(){
     document.querySelector('#ltvSub').textContent='Estimated LTV using your saved property value.';
     circle.style.setProperty('--p',Math.min(100,v)+'%');
     document.querySelector('#propertyValue').value=state.propertyValue;
+    document.querySelector('#equity').textContent=money(Math.max(0,state.propertyValue-bal),2);
+    const gap75=Math.max(0,bal-state.propertyValue*.75);
+    document.querySelector('#nextStop').textContent=v<=75?'75% reached!':'75% LTV';
+    document.querySelector('#nextStopSub').textContent=v<=75?'Next stop: 60% LTV':money(gap75,2)+' to go';
   }else{
     document.querySelector('#ltv').textContent='—';
     document.querySelector('#propertyValueText').textContent='Set property value';
     document.querySelector('#ltvSub').textContent='Add your estimated property value to calculate LTV.';
     circle.style.setProperty('--p','0%');
+    document.querySelector('#equity').textContent='—';document.querySelector('#nextStop').textContent='Set value';document.querySelector('#nextStopSub').textContent='to unlock LTV stops';
   }
   renderLtvMilestones(v);
-  preview(); save();
+  drawChart(); preview(); save();
 }
 function renderLtvMilestones(v){
   const bands=[90,85,80,75,60];
@@ -211,6 +231,22 @@ function renderLtvMilestones(v){
     return `<div class="milestone"><div class="badge">${done?'✅':'🚐'}</div><div class="mtext"><b>${b}% LTV</b><small>${done?'Milestone reached':money(gap)+' balance reduction to reach this band'}</small></div></div>`
   }).join('');
 }
+
+function drawChart(){
+ const c=document.querySelector('#mortgageChart'); if(!c)return;
+ const ctx=c.getContext('2d'),W=c.width,H=c.height,L=62,R=18,T=24,B=40,r=RATE/12,n=MONTHS,b0=state.initialBalance;
+ const pay=b0*r/(1-Math.pow(1+r,-n)), extra=lifetime(), rows=[]; let a=b0,m=b0;
+ for(let i=0;i<=n;i++){if(i%12===0||i===n)rows.push({i,a,m});if(i<n){a=Math.max(0,a-(pay-a*r));m=Math.max(0,m-(pay-m*r));if(i<12)m=Math.max(0,m-extra/12)}}
+ const x=i=>L+(W-L-R)*i/n,y=v=>T+(H-T-B)*(1-v/b0);ctx.clearRect(0,0,W,H);ctx.font='20px -apple-system';ctx.fillStyle='#718086';
+ [0,.25,.5,.75,1].forEach(f=>{let yy=y(b0*f);ctx.strokeStyle='#e8dfd4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.textAlign='right';ctx.fillText('£'+Math.round(b0*f/1000)+'k',L-8,yy+6)});
+ [0,5,10,15,20].forEach(yr=>{ctx.textAlign='center';ctx.fillText(yr?yr+'y':'Now',x(yr*12),H-10)});
+ function line(k,col,w){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();rows.forEach((d,j)=>j?ctx.lineTo(x(d.i),y(d[k])):ctx.moveTo(x(d.i),y(d[k])));ctx.stroke()}
+ line('a','#9aa7aa',5);line('m','#0b7c82',7);
+ [{v:100000,t:'£100k'},{v:state.propertyValue?state.propertyValue*.75:0,t:'75% LTV'}].filter(g=>g.v&&g.v<b0).forEach(g=>{let yy=y(g.v);ctx.setLineDash([7,7]);ctx.strokeStyle='#df7149';ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#b55d3f';ctx.textAlign='left';ctx.fillText(g.t,L+6,yy-6)});
+ let fx=x(35);ctx.setLineDash([5,6]);ctx.strokeStyle='#d2a12c';ctx.beginPath();ctx.moveTo(fx,T);ctx.lineTo(fx,H-B);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#9a7417';ctx.textAlign='left';ctx.fillText('Jul 2029',fx+5,T+18);
+ const im=impact(lifetime()),days=Math.round(im.months*30.44);document.querySelector('#advTime').textContent=days+' days';document.querySelector('#advInterest').textContent=money(im.interest);
+}
+
 function enterApp(){document.querySelector('#splash').style.display='none';document.querySelector('#app').classList.add('show');document.querySelector('#nav').classList.add('show')}
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -228,8 +264,9 @@ function preview(){
     document.querySelector('#pInterest').textContent=money(im.interest,2);
     document.querySelector('#pTime').textContent=days+' day'+(days===1?'':'s');
     document.querySelector('#pAllow').textContent=money(Math.max(0,ALLOWANCE-lifetime()-a),2);
+    document.querySelector('#monthMilestone').style.display=(a===250)?'flex':'none';
   }else{
-    ['#pBalance','#pInterest','#pTime','#pAllow'].forEach(x=>document.querySelector(x).textContent='—');
+    ['#pBalance','#pInterest','#pTime','#pAllow'].forEach(x=>document.querySelector(x).textContent='—');document.querySelector('#monthMilestone').style.display='none';
   }
 }
 function confirmOverpay(){
@@ -240,11 +277,11 @@ function confirmOverpay(){
 }
 function celebrate(a,im){
   const c=document.querySelector('#celebrate');document.querySelector('#celeAmt').textContent=money(a)+' OVERPAID!';
-  const days=Math.round(im.months*30.44);document.querySelector('#celeInfo').textContent='About '+money(im.interest)+' future interest avoided • roughly '+days+' days saved';
+  const days=Math.round(im.months*30.44);document.querySelector('#celeInfo').innerHTML='About '+money(im.interest)+' future interest avoided • roughly '+days+' days saved'+(a===250?'<br><b style="color:#ffd166;font-size:20px">🏆 ONE MONTH OFF THE TERM!</b>':'');
   c.classList.add('show');
-  const bursts=a>=500?9:a>=100?6:4, total=a>=500?220:a>=100?150:100;
+  const bursts=a>=500?16:a>=250?12:a>=100?9:a>=50?6:4,total=a>=500?420:a>=250?300:a>=100?220:a>=50?150:110;if(a>=250)c.classList.add('mega');
   for(let b=0;b<bursts;b++){let cx=10+Math.random()*80,cy=10+Math.random()*65;setTimeout(()=>{for(let i=0;i<total/bursts;i++){let e=document.createElement('i');e.className='spark';e.style.left=cx+'vw';e.style.top=cy+'vh';let ang=Math.random()*Math.PI*2,d=60+Math.random()*190;e.style.setProperty('--x',Math.cos(ang)*d+'px');e.style.setProperty('--y',Math.sin(ang)*d+'px');e.style.background=`hsl(${Math.random()*360} 95% 65%)`;c.appendChild(e);setTimeout(()=>e.remove(),1500)}},b*100)}
-  setTimeout(()=>{c.classList.remove('show');showPage('dashboard')},1900)
+  if(a>=250){for(let j=0;j<5;j++){let q=document.createElement('div');q.className='rocket';q.textContent='🚀';q.style.left=(10+Math.random()*80)+'vw';q.style.bottom='-40px';q.style.animationDelay=(j*.12)+'s';c.appendChild(q);setTimeout(()=>q.remove(),1700)}}setTimeout(()=>{c.classList.remove('show','mega');showPage('dashboard')},a>=250?2700:2100)
 }
 function saveProperty(){let v=Number(document.querySelector('#propertyValue').value);if(v>0){state.propertyValue=v;save();render();showPage('dashboard')}}
 function reconcile(){
