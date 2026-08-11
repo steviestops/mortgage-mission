@@ -1,11 +1,15 @@
-Mortgage Mission V5.1
+Mortgage Mission V6
 
-Fixes:
-- Splash is now 100% app-rendered CSS artwork. There is NO background image containing text,
-  phone chrome, status bars or buttons, so duplication is impossible.
-- £100/month recurring overpayment now drives the summary calculations, not just the green graph.
-- Mission Advantage now shows term reduction from the active recurring plan.
-- Interest Avoided now shows the estimated saving from the active recurring plan.
-- Dashboard includes Current-plan time saved and Current-plan interest saved.
-- Recurring projected mortgage-free date uses the same full-plan calculation.
-- Santander checkpoints, protected history, recurring history and What-if sandbox retained.
+Built and verified from the user's working V5.1 package.
+
+V6 changes
+- Richer camper/coastal dashboard journey artwork.
+- Time saved displayed naturally in years/months (with days on the detailed Progress view).
+- Separate "Estimated interest avoided so far" from confirmed real overpayments.
+- Separate "Projected interest avoided" based on the active current plan, including recurring overpayments.
+- Tidier graph labels for 75% LTV and the July 2029 fixed-deal marker.
+- Existing V5.1 Santander checkpoints, recurring history, What-if sandbox, fireworks, PWA behaviour and local saved-data key are retained.
+
+Important
+- Existing user data remains in the same localStorage key: mortgageMissionV3.
+- No reset is required when upgrading.
